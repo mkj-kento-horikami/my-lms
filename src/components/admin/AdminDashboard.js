@@ -19,7 +19,7 @@ function AdminDashboard({ role }) {
   return (
     <Layout role={role}>
       <div className="container">
-        <h2>Click Logs</h2>
+        <h2>Click Logsあ</h2>
         <table>
           <thead>
             <tr>
