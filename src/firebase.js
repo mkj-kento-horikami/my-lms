@@ -1,23 +1,36 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp } from 'firebase/app';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getStorage } from 'firebase/storage';
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyBbBcuULnli6VJeJjL0M4CxqCn8OGd3O0c",
-  authDomain: "lms-inc.firebaseapp.com",
-  projectId: "lms-inc",
-  storageBucket: "lms-inc.firebasestorage.app",
-  messagingSenderId: "679017053630",
-  appId: "1:679017053630:web:efde75c80d30e6ec580def",
-  measurementId: "G-MV576E8RN7"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 
-export { auth };
+const db = getFirestore(app);
+const auth = getAuth(app);
+const storage = getStorage(app);
+
+// ユーザーがログインしたときにFirestoreにユーザーデータを保存
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const userDocRef = doc(db, 'users', user.uid);
+    const userDoc = await getDoc(userDocRef);
+    if (!userDoc.exists()) {
+      await setDoc(userDocRef, {
+        email: user.email,
+        role: 'user' // デフォルトのロールを設定
+      });
+    }
+  }
+});
+
+export { db, auth, storage };
